@@ -1,0 +1,131 @@
+<header class="app-header flex justify-between items-center border-b p-3 shadow-sm">
+    <a href="/web/page" class="text-3xl w-32 font-extrabold logo-gradient tracking-tight">
+        AntiApi
+    </a>
+
+    <!-- Command Input -->
+    {% if title_hide %}
+    {% include 'components/command-input.html' %}
+    {% endif %}
+
+    <div class="flex items-center w-32 justify-end">
+        <div target="blank"
+             class="w-10 h-10 text-2xl rounded-full flex items-center justify-center text-white font-medium avatar-gradient shadow-md"
+             id="avatar">
+            <i class="fa-solid fa-brain"></i>
+        </div>
+        <button id="theme-toggle" class="theme-toggle ml-2 p-2 hover:bg-opacity-20 rounded-full transition-colors">
+            <i class="fa-solid fa-moon"></i>
+        </button>
+        <button id="menuToggle" class="ml-2 p-2 hover:bg-opacity-20 rounded-full transition-colors">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+
+        <!-- Popup Menu -->
+        {% include 'components/popup-menu.html' %}
+    </div>
+</header>
+<script src="{{ url_for('static', filename='js/utils/fetch-api.js') }}"></script>
+<script>
+    const avatar = document.getElementById("avatar");
+
+    async function loadCompanyInfo() {
+        try {
+            const msg = await fetchGet('/companies', {}, true);
+            console.log(msg);
+            if (msg.status === 'SUCCESS') {
+                avatar.innerHTML = ''
+                avatar.innerHTML = msg.data.company_name[0];
+            } else {
+                Notification.show(msg.message, 'error');
+            }
+        } catch (error) {
+            console.error('Error during company info fetch:', error);
+            Notification.show('An error occurred while fetching company info', 'error');
+        }
+    }
+
+    loadCompanyInfo();
+</script>
+
+<script src="{{ url_for('static', filename='js/components/popup-menu.js') }}"></script>
+<script>
+    async function logout() {
+        try {
+            const msg = await fetchPost('/auth/log-out', {}, true);
+            console.log(msg);
+            if (msg.status === 'SUCCESS') {
+                window.location.href = "/web/login";
+            } else {
+                Notification.show(msg.message, 'error');
+            }
+        } catch (error) {
+            console.error('Error during company info fetch:', error);
+            Notification.show('An error occurred while fetching company info', 'error');
+        }
+    }
+</script>
+<script>
+    // Function to properly get CSS variables with fallbacks
+    function getCssVariable(variableName, fallback) {
+        // Get the variable value from the document root
+        let value = getComputedStyle(document.documentElement)
+            .getPropertyValue(variableName)
+            .trim();
+
+        // Return the value if it exists, otherwise return the fallback
+        return value || fallback;
+    }
+
+    // Get theme colors from CSS variables
+    let textColor = getCssVariable('--text-color', '#333333');
+    let iconColor = getCssVariable('--text-color', '#333333');
+    let hoverColor = getCssVariable('--hover-color', '#dadada');
+
+    console.log('Text color from CSS variable:', textColor);
+    console.log('Icon color from CSS variable:', iconColor);
+    console.log('Hover color from CSS variable:', hoverColor);
+
+    let menuOptions = [
+        {
+            "icon": "fa-solid fa-diagram-project",
+            "icon-color": iconColor,
+            "content": "Project",
+            "content-color": textColor,
+            "bg-hover": hoverColor,
+            "action": function () {
+                window.location.href = '/web/page';
+            }
+        },
+        {
+            "icon": "fa-solid fa-right-from-bracket",
+            "icon-color": iconColor,
+            "content": "Log out",
+            "content-color": textColor,
+            "bg-hover": hoverColor,
+            "action": function () {
+                logout();
+            }
+        }
+    ];
+
+    menuToggle.addEventListener('click', function () {
+        // Re-get the colors in case theme has changed
+        let currentTextColor = getCssVariable('--text-color', '#333333');
+        let currentIconColor = getCssVariable('--text-color', '#333333');
+        let currentHoverColor = getCssVariable('--hover-bg ', '#f0f0f0');
+
+        // Update menu options with current colors
+        menuOptions.forEach(option => {
+            option["content-color"] = currentTextColor;
+            option["icon-color"] = currentIconColor;
+            option["bg-hover"] = currentHoverColor;  // Update hover color too
+        });
+
+        let setting = {
+            "location-lb": "-30px 2px",
+            "classname-extend": "popup-menu-bg"
+        };
+        setPopupMenu(menuOptions, setting, menuToggle);
+    });
+</script>

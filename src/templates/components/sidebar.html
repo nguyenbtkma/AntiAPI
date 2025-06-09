@@ -1,0 +1,235 @@
+<div class="app-sidebar w-56 p-3 border-r flex flex-col h-full shadow-sm">
+    <nav id="sidebar-nav" class="side-bar custom-scrollbar overflow-y-auto max-h-full"></nav>
+</div>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/components/menu-customer') }}">
+
+<script src="{{ url_for('static', filename='js/components/popup-input-customer.js') }}"></script>
+<script src="{{ url_for('static', filename='js/components/popup-menu-customer.js') }}"></script>
+<script src="{{ url_for('static', filename='js/utils/fetch-api.js') }}"></script>
+<script src="{{ url_for('static', filename='js/utils/fetch-web.js') }}"></script>
+<script src="{{ url_for('static', filename='js/components/notification.js') }}"></script>
+<script type="module">
+    import { getSidebarInstance, initSidebar, setSidebarInstance }
+        from "{{ url_for('static', filename='js/components/sidebar.js') }}";
+
+    function getProjectCurrentId() {
+        return new URLSearchParams(window.location.search).get('id');
+    }
+
+    async function loadProject() {
+        const pid = getProjectCurrentId();
+        if (!pid) return null;
+        try {
+            const msg = await fetchGet('/projects', { "id": pid }, true);
+            return msg.status === 'SUCCESS' ? msg.data : null;
+        } catch (error) {
+            Notification.show('Error fetching project', 'error');
+            return null;
+        }
+    }
+
+    async function loadTopicList() {
+        const pid = getProjectCurrentId();
+        if (!pid) return null;
+        try {
+            const project = await loadProject();
+            const msg = await fetchGet('/topics', { "pid": pid }, true);
+            if (msg.status === 'SUCCESS') {
+                const dataRes = [{ type: "project", content: project.project_name }];
+                msg.data.forEach(data => dataRes.push({
+                    type: "topic",
+                    id: data.topic_id,
+                    content: data.topic_name,
+                    isOpen: false
+                }));
+                return dataRes;
+            }
+            return null;
+        } catch (error) {
+            Notification.show('Error fetching topics', 'error');
+            return null;
+        }
+    }
+
+    async function loadApiList(topic_id) {
+        try {
+            const msg = await fetchGet('/apis/shorten', { "tid": topic_id }, true);
+            return msg.status === 'SUCCESS' ? msg.data.map(data => ({
+                id: data.api_id,
+                topicId: topic_id,
+                protocol: data.api_type,
+                content: data.api_name
+            })) : [];
+        } catch (error) {
+            Notification.show('Error fetching APIs', 'error');
+            return [];
+        }
+    }
+
+    async function fetchApiInputHTML(api_id) {
+        try {
+            const ui = await fetchGetWeb('/content/api-input', { 'aid': api_id }, true);
+            return ui;
+        } catch (error) {
+            Notification.show('Error fetching API input', 'error');
+            return '';
+        }
+    }
+
+    async function deleteApi(apiId) {
+        try {
+            const msg = await fetchDelete('/apis', { "api_id": apiId }, true);
+            if (msg.status === 'SUCCESS') {
+                Notification.show("API deleted", 'success');
+                const sidebar = getSidebarInstance();
+                if (sidebar) sidebar.updateApis(sidebar.apiData.filter(api => api.id !== apiId));
+            } else {
+                Notification.show(msg.message, 'error');
+            }
+        } catch (error) {
+            Notification.show('Error deleting API', 'error');
+        }
+    }
+
+    async function deleteTopic(topicId) {
+        try {
+            const msg = await fetchDelete('/topics', { "topic_id": topicId }, true);
+            if (msg.status === 'SUCCESS') {
+                Notification.show("Topic deleted", 'success');
+                const sidebar = getSidebarInstance();
+                if (sidebar) {
+                    sidebar.updateTopics(sidebar.sideBarData.filter(item => item.type !== "topic" || item.id !== topicId));
+                    sidebar.updateApis(sidebar.apiData.filter(api => api.topicId !== topicId));
+                }
+            } else {
+                Notification.show(msg.message, 'error');
+            }
+        } catch (error) {
+            Notification.show('Error deleting topic', 'error');
+        }
+    }
+
+    function addNewApi(topicId) {
+        const formFields = [
+            { filed_name: "API Name", filed_key: "api_name", type: "text", not_null: true, value: "Api name" },
+            { filed_name: "API Type", filed_key: "api_type", type: "text", not_null: true, value: "GET" },
+            { filed_name: "Endpoint", filed_key: "endpoint", type: "text", not_null: true, value: "/ping" },
+            { filed_name: "Format API", filed_key: "format_api", type: "textarea", not_null: true, value: "{...}" }
+        ];
+        popupcbh0001("API Input", formFields, "popup-custom", false, "white", async (data) => {
+            data.topic_id = topicId;
+            data.format_api = btoa(data.format_api);
+            await createNewApi(data);
+        });
+    }
+
+    async function createNewApi(api) {
+        try {
+            const msg = await fetchPost('/apis', api, true);
+            if (msg.status === 'SUCCESS') {
+                Notification.show("API created", 'success');
+                const sidebar = getSidebarInstance();
+                if (sidebar) {
+                    sidebar.updateApis([...sidebar.apiData, {
+                        id: msg.data.api_id,
+                        topicId: api.topic_id,
+                        protocol: api.api_type,
+                        content: api.api_name
+                    }]);
+                }
+            } else {
+                Notification.show(msg.message, 'error');
+            }
+        } catch (error) {
+            Notification.show('Error creating API', 'error');
+        }
+    }
+
+    async function addTopic() {
+        const formFields = [
+            { filed_name: "Topic Name", filed_key: "topic_name", type: "text", not_null: true, value: "New Topic" }
+        ];
+        popupcbh0001("Add Topic", formFields, "popup-custom", false, "white", async (data) => {
+            try {
+                const pid = getProjectCurrentId();
+                data.project_id = pid;
+                const msg = await fetchPost('/topics', data, true);
+                if (msg.status === 'SUCCESS') {
+                    Notification.show("Topic created", 'success');
+                    const sidebar = getSidebarInstance();
+                    if (sidebar) {
+                        sidebar.updateTopics([...sidebar.sideBarData, {
+                            type: "topic",
+                            id: msg.data.topic_id,
+                            content: data.topic_name,
+                            isOpen: false
+                        }]);
+                    }
+                } else {
+                    Notification.show(msg.message, 'error');
+                }
+            } catch (error) {
+                Notification.show('Error creating topic', 'error');
+            }
+        });
+    }
+
+    function scanProject() {
+        window.location.href = "/web/page/scan?pid=" + getProjectCurrentId();
+    }
+
+    async function protectProject() {
+        window.location.href = "/web/page/middle?pid=" + getProjectCurrentId();
+    }
+
+    async function deleteProject() {
+        try {
+            const pid = getProjectCurrentId();
+            const msg = await fetchDelete('/projects', { project_id: pid }, true);
+            if (msg.status === 'SUCCESS') {
+                Notification.show("Project deleted", 'success');
+                window.location.href = '/web/page';
+            } else {
+                Notification.show(msg.message, 'error');
+            }
+        } catch (error) {
+            Notification.show('Error deleting project', 'error');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        try {
+            const topicsData = await loadTopicList();
+            if (!topicsData || topicsData.length === 0) {
+                console.warn("No topics data available");
+                return;
+            }
+
+            const sidebar = initSidebar('sidebar-nav', topicsData, []);
+            setSidebarInstance(sidebar);
+
+            sidebar.setApiClickHandler(async (api) => {
+                const mainContent = document.getElementById("main-content");
+                const ui = await fetchApiInputHTML(api.id);
+                if (mainContent) mainContent.innerHTML = ui;
+                console.log(`API clicked: ${api.protocol} ${api.content}, ID: ${api.id}`);
+            });
+
+            sidebar.setTopicClickHandler(async (topic) => {
+                console.log(`Topic clicked: ${topic.content}, ID: ${topic.id}`);
+                const apis = await loadApiList(topic.id);
+                if (apis) sidebar.updateApis(apis);
+            });
+
+            sidebar.setDeleteApiHandler(deleteApi);
+            sidebar.setDeleteTopicHandler(deleteTopic);
+            sidebar.setAddNewApiHandler(addNewApi);
+            sidebar.setAddTopicHandler(addTopic);
+            sidebar.setScanProjectHandler(scanProject);
+            sidebar.setProtectProjectHandler(protectProject);
+            sidebar.setDeleteProjectHandler(deleteProject);
+        } catch (error) {
+            console.error("Error initializing sidebar:", error);
+        }
+    });
+</script>

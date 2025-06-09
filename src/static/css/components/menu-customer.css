@@ -1,0 +1,9 @@
+.custom-menu-style {
+    padding: 2px 0px 2px 0px !important;
+    margin: 0px 0px 0px 0px !important;
+    font-size: 13px !important;
+    background: #20293a !important;
+}
+.custom-menu-style div {
+    color: inherit !important;
+}

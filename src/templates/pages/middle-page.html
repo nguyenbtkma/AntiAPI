@@ -1,0 +1,454 @@
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+
+    .middleware-container {
+        background: linear-gradient(145deg, rgba(10, 10, 20, 0.9), rgba(0, 0, 0, 0.95));
+        border-radius: 15px;
+        box-shadow: 0 0 20px var(--shadow-color), 0 0 40px var(--primary-shadow-hover);
+        padding: 3rem;
+        width: 100%;
+        height: calc(100% - 6rem);
+        max-width: 1200px;
+        margin: 3rem auto;
+        border: 3px solid var(--primary-color);
+        transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        font-family: 'Courier New', Courier, monospace;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: stretch;
+    }
+
+    .middleware-container:hover {
+        transform: scale(1.02);
+        box-shadow: 0 0 30px var(--primary-shadow), 0 0 60px var(--primary-color);
+    }
+
+    .middleware-container::before {
+        content: '';
+        position: absolute;
+        top: -3px;
+        left: -3px;
+        right: -3px;
+        bottom: -3px;
+        background: linear-gradient(45deg, transparent 0%, var(--primary-color) 50%, transparent 100%);
+        animation: glitch 1.5s infinite linear;
+        z-index: 0;
+        opacity: 0.2;
+    }
+
+    @keyframes glitch {
+        0% { transform: translate(0); }
+        20% { transform: translate(-5px, 5px); }
+        40% { transform: translate(5px, -5px); }
+        60% { transform: translate(-5px, 0); }
+        80% { transform: translate(5px, 0); }
+        100% { transform: translate(0); }
+    }
+
+    .hacker-numbers {
+        flex: 1;
+        background: rgba(0, 0, 0, 0.7);
+        border-right: 2px solid var(--primary-color);
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .matrix-rain {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        color: var(--api-get);
+        font-size: 1.2rem;
+        line-height: 1.5;
+        letter-spacing: 2px;
+        animation: matrix 10s linear infinite;
+        opacity: 0.6;
+        white-space: pre-wrap;
+        pointer-events: none;
+    }
+
+    @keyframes matrix {
+        0% { transform: translateY(-100%); }
+        100% { transform: translateY(100%); }
+    }
+
+    .control-panel {
+        flex: 1;
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        z-index: 1;
+    }
+
+    .middleware-title {
+        color: var(--primary-color);
+        font-size: 2.8rem;
+        font-weight: bold;
+        font-family: 'Orbitron', sans-serif;
+        text-align: center;
+        margin-bottom: 3rem;
+        text-transform: uppercase;
+        letter-spacing: 4px;
+        text-shadow: 0 0 10px var(--primary-color), 0 0 20px var(--primary-shadow);
+    }
+
+    .input-group {
+        margin-bottom: 3rem;
+        width: 100%;
+        max-width: 700px;
+        display: block;
+    }
+
+    .input-group label {
+        display: block;
+        color: var(--text-label);
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-family: 'Orbitron', sans-serif;
+        text-shadow: 0 0 5px var(--text-color);
+    }
+
+    .input-group input {
+        width: 100%;
+        padding: 1.2rem;
+        background: rgba(20, 20, 30, 0.8);
+        border: 3px solid var(--primary-color);
+        border-radius: 12px;
+        color: var(--api-get);
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 1.2rem;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+    }
+
+    .input-group input:focus {
+        border-color: var(--primary-color);
+        outline: none;
+        box-shadow: 0 0 10px var(--primary-shadow), 0 0 20px var(--primary-color);
+        transform: scale(1.02);
+    }
+
+    .input-group input::placeholder {
+        color: var(--default-text);
+        opacity: 0.5;
+    }
+
+    .toggle-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 2.5rem;
+        margin: 3rem 0;
+    }
+
+    .toggle-container span {
+        font-size: 1.8rem;
+        color: var(--default-text);
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        font-family: 'Orbitron', sans-serif;
+        text-shadow: 0 0 5px var(--text-color), 0 0 10px var(--primary-shadow);
+        transition: color 0.3s ease, text-shadow 0.3s ease;
+    }
+
+    .toggle-container span.active {
+        color: var(--api-get);
+        text-shadow: 0 0 10px var(--api-get), 0 0 20px var(--primary-shadow);
+    }
+
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 120px;
+        height: 60px;
+    }
+
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(90deg, #111, #333);
+        transition: 0.4s;
+        border-radius: 60px;
+        border: 3px solid var(--primary-color);
+        box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.7);
+    }
+
+    .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 48px;
+        width: 48px;
+        left: 6px;
+        bottom: 6px;
+        background: linear-gradient(45deg, #fff, #ddd);
+        transition: 0.4s;
+        border-radius: 50%;
+        box-shadow: 0 0 10px var(--primary-color);
+    }
+
+    input:checked + .toggle-slider {
+        background: var(--primary-gradient);
+        box-shadow: inset 0 0 20px var(--primary-color);
+    }
+
+    input:checked + .toggle-slider:before {
+        transform: translateX(60px);
+        box-shadow: 0 0 15px var(--primary-color), 0 0 25px var(--api-get);
+    }
+
+    .notification {
+        margin-top: 2.5rem;
+        padding: 1.2rem;
+        border-radius: 10px;
+        font-size: 1.2rem;
+        text-align: center;
+        display: none;
+        width: 100%;
+        max-width: 700px;
+        text-shadow: 0 0 5px var(--text-color);
+    }
+
+    .notification.success {
+        background: var(--api-get);
+        color: white;
+        animation: pulse 1.5s infinite;
+    }
+
+    .notification.error {
+        background: var(--api-delete);
+        color: white;
+        animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+</style>
+
+<div class="middleware-container">
+    <div class="hacker-numbers">
+        <div class="matrix-rain" id="matrixRain"></div>
+    </div>
+
+    <div class="control-panel">
+        <h2 id="statusTitle" class="middleware-title">Protection Disabled</h2>
+
+        <div id="inputGroup" class="input-group">
+            <label id="inputLabel" for="baseUrl">Base URL</label>
+            <input type="text" id="baseUrl" placeholder="Enter base URL">
+        </div>
+
+        <div class="toggle-container">
+            <span id="offLabel">OFF</span>
+            <label class="toggle-switch">
+                <input type="checkbox" id="toggleButton">
+                <span class="toggle-slider"></span>
+            </label>
+            <span id="onLabel">ON</span>
+        </div>
+
+        <div id="notification" class="notification"></div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/utils/fetch-api.js') }}"></script>
+<script src="{{ url_for('static', filename='js/components/notification.js') }}"></script>
+<script>
+function createMatrixRain() {
+    const matrixRain = document.getElementById('matrixRain');
+    const chars = '0123456789ABCDEF';
+    const columns = 20;
+    let text = '';
+
+    for (let i = 0; i < columns; i++) {
+        let column = '';
+        for (let j = 0; j < 30; j++) {
+            column += chars.charAt(Math.floor(Math.random() * chars.length)) + ' ';
+        }
+        text += column + '\n';
+    }
+
+    matrixRain.textContent = text;
+
+    setInterval(() => {
+        let newText = '';
+        for (let i = 0; i < columns; i++) {
+            let column = '';
+            for (let j = 0; j < 30; j++) {
+                column += Math.random() > 0.1 ? matrixRain.textContent.split('\n')[i].split(' ')[j] || ' ' : chars.charAt(Math.floor(Math.random() * chars.length)) + ' ';
+            }
+            newText += column + '\n';
+        }
+        matrixRain.textContent = newText;
+    }, 100);
+}
+
+document.addEventListener('DOMContentLoaded', createMatrixRain);
+
+const toggleButton = document.getElementById('toggleButton');
+const statusTitle = document.getElementById('statusTitle');
+const baseUrlInput = document.getElementById('baseUrl');
+const inputGroup = document.getElementById('inputGroup');
+const inputLabel = document.getElementById('inputLabel');
+const notification = document.getElementById('notification');
+const offLabel = document.getElementById('offLabel');
+const onLabel = document.getElementById('onLabel');
+
+function getProjectCurrentId() {
+    return new URLSearchParams(window.location.search).get('pid');
+}
+
+async function check_state_middle() {
+    const pid = getProjectCurrentId();
+    if (!pid) return null;
+    try {
+        const msg = await fetchPost('/mids/state', { "project_id": pid }, true);
+        // Return an object with a `state` property, consistent with updateUI expectation
+        return msg.status === 'SUCCESS' ? { state: msg.data.state } : null;
+    } catch (error) {
+        Notification.show('Error fetching project state', 'error');
+        return null;
+    }
+}
+
+async function enableMiddle(baseUrl) {
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get('pid');
+
+        if (!baseUrl) {
+            Notification.show('Please enter a Base URL', 'error');
+            return false;
+        }
+
+        if (!id) {
+            Notification.show('Project ID not found in URL', 'error');
+            return false;
+        }
+
+        const msg = await fetchPost('/mids/enable', { "base_url": baseUrl, "project_id": id }, true);
+
+        if (msg.status === 'SUCCESS') {
+            Notification.show(msg.message, 'success');
+            return true;
+        } else {
+            Notification.show(msg.message, 'error');
+            return false;
+        }
+    } catch (error) {
+        console.error('Error enabling middleware:', error);
+        Notification.show('An error occurred while enabling protection', 'error');
+        return false;
+    }
+}
+
+async function disableMiddle() {
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get('pid');
+
+        if (!id) {
+            Notification.show('Project ID not found in URL', 'error');
+            return false;
+        }
+
+        const msg = await fetchPost('/mids/disable', { "project_id": id }, true);
+
+        if (msg.status === 'SUCCESS') {
+            Notification.show(msg.message, 'success');
+            return true;
+        } else {
+            Notification.show(msg.message, 'error');
+            return false;
+        }
+    } catch (error) {
+        console.error('Error disabling middleware:', error);
+        Notification.show('An error occurred while disabling protection', 'error');
+        return false;
+    }
+}
+
+async function updateUI(state) {
+    const isEnabled = state && state.state === true;
+    statusTitle.textContent = isEnabled ? 'Protection Enabled' : 'Protection Disabled';
+    statusTitle.style.color = isEnabled ? 'var(--api-get)' : 'var(--api-delete)';
+    inputLabel.textContent = isEnabled ? 'URL' : 'Base URL';
+    baseUrlInput.placeholder = isEnabled ? 'Enter URL' : 'Enter base URL';
+    inputGroup.style.display = isEnabled ? 'none' : 'block';
+    toggleButton.checked = isEnabled;
+
+    if (isEnabled) {
+        onLabel.classList.add('active');
+        offLabel.classList.remove('active');
+    } else {
+        offLabel.classList.add('active');
+        onLabel.classList.remove('active');
+    }
+}
+
+async function on() {
+    const baseUrl = baseUrlInput.value;
+    const success = await enableMiddle(baseUrl);
+
+    if (success) {
+        updateUI({ state: true });
+    } else {
+        toggleButton.checked = false;
+    }
+}
+
+async function off() {
+    const success = await disableMiddle();
+
+    if (success) {
+        updateUI({ state: false });
+    } else {
+        toggleButton.checked = true;
+    }
+}
+
+toggleButton.addEventListener('change', function () {
+    if (this.checked) {
+        on();
+    } else {
+        off();
+    }
+});
+
+document.querySelector('.toggle-switch').addEventListener('click', function (e) {
+    e.preventDefault();
+    toggleButton.checked = !toggleButton.checked;
+    toggleButton.dispatchEvent(new Event('change'));
+});
+
+document.addEventListener('DOMContentLoaded', async function () {
+    const state = await check_state_middle();
+    if (state !== null) {
+        updateUI(state);
+    }
+});
+</script>

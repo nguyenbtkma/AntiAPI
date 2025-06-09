@@ -1,0 +1,26 @@
+<div class="flex flex-col h-screen" style="background-color: var(--background-color); color: var(--text-color);">
+    <header class="app-header-container flex justify-between items-center px-4 py-3 sticky top-0 z-10 bg-transparent backdrop-blur-md">
+        <div class="flex items-center">
+            <span class="method-badge font-semibold py-1 px-3 text-base mr-4"
+                  style="color: var(--api-{% if isGet %}get{% elif isPost %}post{% elif isPut %}put{% elif isDelete %}delete{% elif isPatch %}patch{% else %}get{% endif %});">
+                {% if isGet %}GET{% elif isPost %}POST{% elif isPut %}PUT{% elif isDelete %}DELETE{% elif isPatch %}PATCH{% else %}GET{% endif %}
+            </span>
+            <span class="editable-url text-lg font-semibold cursor-text px-2 py-1 rounded hover:bg-opacity-10 hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  ondblclick="this.contentEditable=true; this.focus();"
+                  onblur="this.contentEditable=false;">
+                {{ endpoint }}
+            </span>
+        </div>
+    </header>
+    <div class="flex flex-1 overflow-hidden p-5">
+        <div class="w-full custom-scrollbar overflow-auto">
+            <h2 class="text-xl font-medium mb-3">Format API (API_ID: {{ format_api }})</h2>
+            <div class="w-full p-4 border rounded-md shadow-sm"
+                 style="background-color: var(--popup-bg); border: 1px solid var(--popup-border); min-height: calc(100vh - 230px);">
+                <div id="display-content" class="overflow-auto h-full font-mono">
+                    <pre style="color: var(--text-color);">{{ format }}</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
